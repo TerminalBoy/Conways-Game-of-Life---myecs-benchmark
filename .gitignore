@@ -1,0 +1,24 @@
+# Ignore the folder at root and all its contents and subfolders
+/Visual Studio files/** 
+# /Dependencies/SFML/**
+
+#/Custom_Preprocessors/struct_parser/VS struct_parser/**
+
+# Unignore the folder at root
+!/Visual Studio files/
+
+# !/Custom_Preprocessors/struct_parser/VS struct_parser/
+
+# Unignore all the subdirectories in the folder 
+!/Visual Studio files/**/
+
+# !/Custom_Preprocessors/struct_parser/VS struct_parser/**/
+
+# Unignore all the VS files at any level
+!/Visual Studio files/**/*.sln 
+!/Visual Studio files/**/*.vcxproj 
+!/Visual Studio files/**/*.vcxproj.filters 
+
+# !/Custom_Preprocessors/struct_parser/VS struct_parser/**/*.sln 
+# !/Custom_Preprocessors/struct_parser/VS struct_parser/**/*.vcxproj 
+# !/Custom_Preprocessors/struct_parser/VS struct_parser/**/*.vcxproj.filters 
