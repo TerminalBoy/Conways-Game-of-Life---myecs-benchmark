@@ -73,4 +73,10 @@ void delete_component<comp::magnitude>(std::unique_ptr<comp::magnitude>& pointer
   pointer->size.pop_back();
 }
 
+template <>
+void delete_component<comp::alive>(std::unique_ptr<comp::alive>& pointer, const std::size_t& index) {
+  pointer->value[index] = pointer->value[pointer->value.size() - 1];
+  pointer->value.pop_back();
+}
+
 }

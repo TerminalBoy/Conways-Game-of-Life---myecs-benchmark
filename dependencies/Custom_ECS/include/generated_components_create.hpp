@@ -57,4 +57,9 @@ void create_component<comp::magnitude>(std::unique_ptr<comp::magnitude>& pointer
   pointer->size.emplace_back();
 }
 
+template <>
+void create_component<comp::alive>(std::unique_ptr<comp::alive>& pointer) {
+  pointer->value.emplace_back();
+}
+
 }

@@ -22,3 +22,5 @@
 # !/Custom_Preprocessors/struct_parser/VS struct_parser/**/*.sln 
 # !/Custom_Preprocessors/struct_parser/VS struct_parser/**/*.vcxproj 
 # !/Custom_Preprocessors/struct_parser/VS struct_parser/**/*.vcxproj.filters 
+
+SFML/

@@ -95,6 +95,8 @@ namespace component {
     struct Direction;
 
     struct Size;
+
+    struct Bool;
   }
   
   namespace type {
@@ -118,6 +120,7 @@ namespace component {
 
     using Size = create_strong_scalar::type<std::int32_t, type_tag::Size>;
 
+    using Bool = create_strong_scalar::type<char, type_tag::Bool>; // a one byte custom bool treated as a int with either 0 or 1;
   }
 }
 

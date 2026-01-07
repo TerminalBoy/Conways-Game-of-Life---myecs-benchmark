@@ -45,6 +45,11 @@ namespace comp {
   struct magnitude {
     myecs::d_array<component::type::Size> size;
   };
+
+  struct alive {
+    myecs::d_array<component::type::Bool> value;
+  };
+
 }
 
 // ##-STOP_PARSE-##
