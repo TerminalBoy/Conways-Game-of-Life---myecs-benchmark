@@ -210,7 +210,11 @@ namespace myecs {
 
     }
 
-    
+    const link& at(number_key key) const { 
+      assert(contains(key) && "key does not exist or is deleted");
+      assert(validate() && "Invariant of index_at_key[key_at_index[i]] == i is broken");
+      return dense[index_at_key[key]];
+    }
 
   };
 
