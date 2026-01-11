@@ -79,4 +79,10 @@ void delete_component<comp::alive>(std::unique_ptr<comp::alive>& pointer, const 
   pointer->value.pop_back();
 }
 
+template <>
+void delete_component<comp::neighbour>(std::unique_ptr<comp::neighbour>& pointer, const std::size_t& index) {
+  pointer->count[index] = pointer->count[pointer->count.size() - 1];
+  pointer->count.pop_back();
+}
+
 }

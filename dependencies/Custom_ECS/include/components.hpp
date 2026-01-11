@@ -49,7 +49,10 @@ namespace comp {
   struct alive {
     myecs::d_array<component::type::Bool> value;
   };
-
+  
+  struct neighbour {
+    myecs::d_array<std::int32_t> count;
+  };
 }
 
 // ##-STOP_PARSE-##

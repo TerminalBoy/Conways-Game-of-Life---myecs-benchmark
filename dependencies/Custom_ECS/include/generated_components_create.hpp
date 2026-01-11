@@ -62,4 +62,9 @@ void create_component<comp::alive>(std::unique_ptr<comp::alive>& pointer) {
   pointer->value.emplace_back();
 }
 
+template <>
+void create_component<comp::neighbour>(std::unique_ptr<comp::neighbour>& pointer) {
+  pointer->count.emplace_back();
+}
+
 }
