@@ -234,7 +234,7 @@ namespace cgl { // Conways's Game of Life
   }
   
   template <typename key, typename link>
-  void init_entities(const myecs::sparse_set<key, link>& cell_index_to_entity, const component::type::WidthPix cell_width, component::type::HeightPix cell_height, std::uint32_t initial_seed = 0) {
+  void init_entities(const myecs::sparse_set<key, link>& cell_index_to_entity, const component::type::WidthPix cell_width, const component::type::HeightPix cell_height, std::uint32_t initial_seed = 0) {
     using namespace component::type;
     std::size_t total_entities = cell_index_to_entity.dense.size(); // size of total data
     std::size_t index = 0;
