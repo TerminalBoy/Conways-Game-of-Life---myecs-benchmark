@@ -53,6 +53,11 @@ namespace cgl { // Conways's Game of Life
       std::uint8_t b = 74;
     }
 
+    namespace current_cell_color { // state machine either 0 or 1
+      std::uint8_t r[2] = { cell_color_dead::r, cell_color_alive::r }; 
+      std::uint8_t g[2] = { cell_color_dead::g, cell_color_alive::g };
+      std::uint8_t b[2] = { cell_color_dead::b, cell_color_alive::b };
+    }
   }
 
   namespace grid_metadata {
@@ -212,7 +217,7 @@ namespace cgl { // Conways's Game of Life
   }
 
   template <typename key, typename link>
-  void create_entities(myecs::sparse_set<key, link>& cell_index_to_entity, myecs::sparse_set<key, link>& NextGen_buffer, component::type::WidthGrid logical_width, component::type::HeightGrid logical_height) {
+  void create_entities(myecs::sparse_set<key, link>& cell_index_to_entity, component::type::WidthGrid logical_width, component::type::HeightGrid logical_height) {
     using namespace cgl::grid_metadata;
 
     cgl::display_metadata::Physical_GridWidth.set(logical_width.get() + (padding * 2));
@@ -224,12 +229,12 @@ namespace cgl { // Conways's Game of Life
                                                                   // logical grid stays width * height
     for (std::size_t i = 0; i < amount; i++) {
       cell_index_to_entity.insert(i, myecs::create_entity());
-      NextGen_buffer.insert(i, myecs::create_entity());
+
     }
   }
   
   template <typename key, typename link>
-  void init_entities(const myecs::sparse_set<key, link>& cell_index_to_entity, const myecs::sparse_set<key, link>& NextGen_buffer, const component::type::WidthPix cell_width, component::type::HeightPix cell_height, std::uint32_t initial_seed = 0) {
+  void init_entities(const myecs::sparse_set<key, link>& cell_index_to_entity, const component::type::WidthPix cell_width, component::type::HeightPix cell_height, std::uint32_t initial_seed = 0) {
     using namespace component::type;
     std::size_t total_entities = cell_index_to_entity.dense.size(); // size of total data
     std::size_t index = 0;
@@ -239,10 +244,10 @@ namespace cgl { // Conways's Game of Life
       myecs::add_comp_to<comp::position_grid>(cell_index_to_entity.at(i));
       myecs::add_comp_to<comp::rectangle>(cell_index_to_entity.at(i));
       myecs::add_comp_to<comp::alive>(cell_index_to_entity.at(i));
-      myecs::add_comp_to<comp::color>(cell_index_to_entity.at(i));
+
       myecs::add_comp_to<comp::neighbour>(cell_index_to_entity.at(i));
 
-      myecs::add_comp_to<comp::alive>(NextGen_buffer.at(i));
+      
     }
 
     // unnessary component removal from the padded always dead entities
@@ -255,10 +260,10 @@ namespace cgl { // Conways's Game of Life
 
       myecs::remove_comp_from<comp::position>(cell_index_to_entity.at(index));
       myecs::remove_comp_from<comp::rectangle>(cell_index_to_entity.at(index));
-      myecs::remove_comp_from<comp::color>(cell_index_to_entity.at(index));
+      
     
       ecs_access(comp::alive, cell_index_to_entity.at(index), value).set(false); // permanentely dead
-      ecs_access(comp::alive, NextGen_buffer.at(index), value).set(false);
+      
     }
 
      // bottom left to bottom right (inclusive)
@@ -269,10 +274,10 @@ namespace cgl { // Conways's Game of Life
 
       myecs::remove_comp_from<comp::position>(cell_index_to_entity.at(index));
       myecs::remove_comp_from<comp::rectangle>(cell_index_to_entity.at(index));
-      myecs::remove_comp_from<comp::color>(cell_index_to_entity.at(index));
+      
 
       ecs_access(comp::alive, cell_index_to_entity.at(index), value).set(false); // permanentely dead
-      ecs_access(comp::alive, NextGen_buffer.at(index), value).set(false);
+      
     }
 
       // top left to bottom left (EXCLUSIVE)
@@ -283,10 +288,10 @@ namespace cgl { // Conways's Game of Life
 
       myecs::remove_comp_from<comp::position>(cell_index_to_entity.at(index));
       myecs::remove_comp_from<comp::rectangle>(cell_index_to_entity.at(index));
-      myecs::remove_comp_from<comp::color>(cell_index_to_entity.at(index));
+      
     
       ecs_access(comp::alive, cell_index_to_entity.at(index), value).set(false); // permanentely dead
-      ecs_access(comp::alive, NextGen_buffer.at(index), value).set(false);
+      
     }
 
     // top right to bottom right (EXCLUSIVE)
@@ -297,10 +302,10 @@ namespace cgl { // Conways's Game of Life
 
       myecs::remove_comp_from<comp::position>(cell_index_to_entity.at(index));
       myecs::remove_comp_from<comp::rectangle>(cell_index_to_entity.at(index));
-      myecs::remove_comp_from<comp::color>(cell_index_to_entity.at(index));
+   
 
       ecs_access(comp::alive, cell_index_to_entity.at(index), value).set(false); // permanentely dead
-      ecs_access(comp::alive, NextGen_buffer.at(index), value).set(false);
+      
     }
 
     // accessing logical entities (the ones which are actually displayed)
@@ -317,16 +322,6 @@ namespace cgl { // Conways's Game of Life
         ecs_access(comp::rectangle, cell_index_to_entity.at(index), width).set(cell_width.get());
         ecs_access(comp::rectangle, cell_index_to_entity.at(index), height).set(cell_height.get());
 
-        if (ecs_access(comp::alive, cell_index_to_entity.at(index), value).get() == false) {
-          ecs_access(comp::color, cell_index_to_entity.at(index), r) = display_metadata::cell_color_dead::r;
-          ecs_access(comp::color, cell_index_to_entity.at(index), g) = display_metadata::cell_color_dead::g;
-          ecs_access(comp::color, cell_index_to_entity.at(index), b) = display_metadata::cell_color_dead::b;
-        }
-        else {
-          ecs_access(comp::color, cell_index_to_entity.at(index), r) = display_metadata::cell_color_alive::r;
-          ecs_access(comp::color, cell_index_to_entity.at(index), g) = display_metadata::cell_color_alive::g;
-          ecs_access(comp::color, cell_index_to_entity.at(index), b) = display_metadata::cell_color_alive::b;
-        }
       }
     }
 
@@ -385,9 +380,11 @@ namespace cgl { // Conways's Game of Life
         const std::int32_t width = ecs_access(comp::rectangle, cell_index_to_entity.at(i), width).get();
         const std::int32_t height = ecs_access(comp::rectangle, cell_index_to_entity.at(i), height).get();
 
-        current_entity_color.r = ecs_access(comp::color, cell_index_to_entity.at(i), r);
-        current_entity_color.g = ecs_access(comp::color, cell_index_to_entity.at(i), g);
-        current_entity_color.b = ecs_access(comp::color, cell_index_to_entity.at(i), b);
+        const auto current_alive = ecs_access(comp::alive, cell_index_to_entity.at(i), value).get();
+
+        current_entity_color.r = cgl::display_metadata::current_cell_color::r[current_alive];
+        current_entity_color.g = cgl::display_metadata::current_cell_color::g[current_alive];
+        current_entity_color.b = cgl::display_metadata::current_cell_color::b[current_alive];
 
         base = logical_i * 4;
 
@@ -441,11 +438,13 @@ namespace cgl { // Conways's Game of Life
         i = cgl::grid_helper_lo::grid_xy_to_array_index(x, y);
         logical_i = cgl::grid_helper_lo::grid_xy_to_array_index_RETURN_LOGICAL(x, y);
 
-        current_entity_color.r = ecs_access(comp::color, cell_index_to_entity.at(i), r);
-        current_entity_color.g = ecs_access(comp::color, cell_index_to_entity.at(i), g);
-        current_entity_color.b = ecs_access(comp::color, cell_index_to_entity.at(i), b);
+        const auto current_alive = ecs_access(comp::alive, cell_index_to_entity.at(i), value).get();
 
-        base = logical_i * 4;
+        current_entity_color.r = cgl::display_metadata::current_cell_color::r[current_alive];
+        current_entity_color.g = cgl::display_metadata::current_cell_color::g[current_alive];
+        current_entity_color.b = cgl::display_metadata::current_cell_color::b[current_alive];;
+
+        base = logical_i * 4; 
 
         Renderables::entities_VertexArray[base + 0].color = current_entity_color;
         Renderables::entities_VertexArray[base + 1].color = current_entity_color;
@@ -693,64 +692,23 @@ namespace cgl { // Conways's Game of Life
 }
 
 namespace cgl::rulebook {
-  void apply_rules(const entity current_id, const entity NextGen_id) {
-   
-    if (ecs_access(comp::alive, current_id, value).get() == true &&
-        ecs_access(comp::neighbour, current_id, count) < 2) {
+  void apply_rules(const entity current_id) {
+    const auto& neighbours = ecs_access(comp::neighbour, current_id, count);
+    const bool current_alive = ecs_access(comp::alive, current_id, value).get();
+    
+    const bool next_alive = (neighbours == 3) || (current_alive && neighbours == 2);
 
-      ecs_access(comp::alive, NextGen_id, value).set(false);
-    }
-    else if (ecs_access(comp::alive, current_id, value).get() == true &&
-             (ecs_access(comp::neighbour, current_id, count) == 2 || ecs_access(comp::neighbour, current_id, count) == 3)) {
-      ecs_access(comp::alive, NextGen_id, value).set(true);
-    }
-    else if (ecs_access(comp::alive, current_id, value).get() == true &&
-             ecs_access(comp::neighbour, current_id, count) > 3) {
-
-      ecs_access(comp::alive, NextGen_id, value).set(false);
-    }
-    else if (ecs_access(comp::alive, current_id, value).get() == false &&
-             ecs_access(comp::neighbour, current_id, count) == 3) {
-
-      ecs_access(comp::alive, NextGen_id, value).set(true);
-    }
-    else {
-      ecs_access(comp::alive, NextGen_id, value).set(false);
-    }
+    ecs_access(comp::alive, current_id, value).set(next_alive);
   }
 }
 
 template <typename key, typename link>
-void conways_game_of_life(const myecs::sparse_set<key, link>& cell_index_to_entity,
-                          const myecs::sparse_set<key, link>& NextGen_buffer) {
+void conways_game_of_life(const myecs::sparse_set<key, link>& cell_index_to_entity) {
   using namespace cgl::grid_iterator;
 
   for_each::logical_cell(cell_index_to_entity,
     [&](auto x, auto y, std::size_t index) {
-      cgl::rulebook::apply_rules(cell_index_to_entity.at(index), NextGen_buffer.at(index));
-    }
-  );
-
-  for_each::logical_cell(cell_index_to_entity,
-    [&](auto x, auto y, std::size_t index) {
-      
-      ecs_access(comp::alive, cell_index_to_entity.at(index), value).set(
-        ecs_access(comp::alive, NextGen_buffer.at(index), value).get()
-      );
-
-      if (ecs_access(comp::alive, cell_index_to_entity.at(index), value).get() == true) {
-
-        ecs_access(comp::color, cell_index_to_entity.at(index), r) = cgl::display_metadata::cell_color_alive::r;
-        ecs_access(comp::color, cell_index_to_entity.at(index), g) = cgl::display_metadata::cell_color_alive::g;
-        ecs_access(comp::color, cell_index_to_entity.at(index), b) = cgl::display_metadata::cell_color_alive::b;
-
-      }
-      else {
-        ecs_access(comp::color, cell_index_to_entity.at(index), r) = cgl::display_metadata::cell_color_dead::r;
-        ecs_access(comp::color, cell_index_to_entity.at(index), g) = cgl::display_metadata::cell_color_dead::g;
-        ecs_access(comp::color, cell_index_to_entity.at(index), b) = cgl::display_metadata::cell_color_dead::b;
-      }
-
+      cgl::rulebook::apply_rules(cell_index_to_entity.at(index));
     }
   );
 
@@ -758,8 +716,15 @@ void conways_game_of_life(const myecs::sparse_set<key, link>& cell_index_to_enti
 
 int main() {
 
-  //std::uint32_t CGL_SEED = mgl::make_seed_xorshift32(); // mgl = my game library
-  std::uint32_t CGL_SEED = 50;
+  std::uint32_t CGL_SEED = mgl::make_seed_xorshift32(); // mgl = my game library
+  //std::uint32_t CGL_SEED = 50;
+  // 
+  // Some seeds i found:
+  //
+  // Beautiful Propagator : 210340070
+  // 
+  //
+  std::cout << "Current seed : " << CGL_SEED << std::endl;
 
   cgl::display_metadata::Logical_GridWidth.set(40);
   cgl::display_metadata::Logical_GridHeight.set(40);
@@ -773,21 +738,21 @@ int main() {
 
   sf::RenderWindow DisplayWindow(sf::VideoMode(DisplayWindow_Width.get(), DisplayWindow_Height.get()), "Hellow world");
   sf::Event event;
-  DisplayWindow.setFramerateLimit(4);
+  DisplayWindow.setFramerateLimit(60);
 
   
   myecs::sparse_set<std::uint32_t, entity> cell_index_to_entity; // REFERRES TO PHYSICAL //  will have padding of one cell around the edges
   myecs::sparse_set<std::uint32_t, entity> NextGen_buffer; // will only hold dead or alive, only for the next generation / tick
  
   cgl::create_entities(
-    cell_index_to_entity, NextGen_buffer,
+    cell_index_to_entity,
     cgl::display_metadata::Logical_GridWidth, 
     cgl::display_metadata::Logical_GridHeight
   ); // creates the total number of entities
   
 
   cgl::init_entities(
-    cell_index_to_entity, NextGen_buffer,
+    cell_index_to_entity,
     cgl::display_metadata::CellWidth, 
     cgl::display_metadata::CellHeight,
     CGL_SEED // <-- this creates noise (random dead or alive)
@@ -811,7 +776,7 @@ int main() {
 
     cgl::calculate_alive_neighbours(cell_index_to_entity);
 
-    conways_game_of_life(cell_index_to_entity, NextGen_buffer);
+    conways_game_of_life(cell_index_to_entity);
 
     cgl::update_entities_VertexArray_state_only(cell_index_to_entity);
     DisplayWindow.clear(sf::Color::Black);
